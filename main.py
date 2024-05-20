@@ -1,6 +1,7 @@
 from decimal import Decimal, getcontext
 import time
 import random
+from math import sqrt 
 
 def mdc(a, b):
     while b:
@@ -71,17 +72,69 @@ def nextPrime(n):
     
     print(newPrime)
 
+def prime_factors(n):
+    """Retorna os fatores primos de n."""
+    factors = set()
+    while n % 2 == 0:
+        factors.add(2)
+        n //= 2
+    for i in range(3, int(sqrt(n)) + 1, 2):
+        while n % i == 0:
+            factors.add(i)
+            n //= i
+    if n > 2:
+        factors.add(n)
+    return factors
+
+#FAZER A PARTE DE RETORNAR UM ELEMENTO DE ORDEM ALTA CASO N ENCONTRE UM GERADOR
+def find_generator(p):
+    """Encontra um gerador do grupo multiplicativo Zp*."""
+    phi = p - 1
+    factors = prime_factors(phi)
+    print("FATORES DE ", p, ": ", factors)
+    # powers = []
+    # for factor in factors:
+    #     powers.append(phi/factor)
+    
+    #range até P como fazer já que P é um Decimal (numero mto grande)
+    for g in range(2, int(p)):
+        is_generator = True
+        for factor in factors:
+            power = phi/factor
+            if mod_exp(g, power, p) == 1:
+                is_generator = False
+                break
+        if is_generator:
+            return g
+        
+    #solução imediata mas sem certeza ----------------> conferir
+    #gen = find_generator(p-1)
+    #print("Não achei gerador inicialmente, mas um número com ordem alta é ", gen)
+    
+    return None
+
 #precisão do número (530 digitos binarios)
 getcontext().prec = 160
 
 n = (input())
 n = Decimal(n)
 
+#Encontrando o menor primo maior que N
 start_time = time.time()
 nextPrime(n)
 end_time = time.time()
 
 execution_time = end_time - start_time
-print("Tempo Gasto: ", execution_time)
+print("Tempo Gasto para achar o menor primo maior que N: ", execution_time)
 
-#1234567890123456789012345678901234568143
+#Encontrando um gerador de Zn
+start_time = time.time()
+g = find_generator(n)
+end_time = time.time()
+
+print("GERADOR: ", g)
+execution_time = end_time - start_time
+print("Tempo Gasto para achar(ou não) o gerador: ", execution_time)
+
+#entrada: 1234567890123456789012345678901234568123
+#saída: 1234567890123456789012345678901234568143
