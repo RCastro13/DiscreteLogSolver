@@ -2,6 +2,7 @@ from decimal import Decimal, getcontext
 import time
 import random
 from math import sqrt, ceil
+from sympy import primefactors
 
 def mdc(a, b):
     while b:
@@ -104,27 +105,27 @@ def wheel_fact(n):
 
     return factors
 
-
 #FAZER A PARTE DE RETORNAR UM ELEMENTO DE ORDEM ALTA CASO N ENCONTRE UM GERADOR
 def find_generator(p):
     """Encontra um gerador do grupo multiplicativo Zp*."""
     phi = p - 1
-    factors = wheel_fact(phi)
+    #factors = prime_factors(phi)
+    factors = primefactors(phi)
     print("FATORES DE ", p, ": ", factors)
     # powers = []
     # for factor in factors:
     #     powers.append(phi/factor)
     
     #range até P como fazer já que P é um Decimal (numero mto grande)
-    for g in range(2, int(p)):
-        is_generator = True
-        for factor in factors:
-            power = phi/factor
-            if mod_exp(g, power, p) == 1:
-                is_generator = False
-                break
-        if is_generator:
-            return g
+    # for g in range(2, int(p)):
+    #     is_generator = True
+    #     for factor in factors:
+    #         power = phi/factor
+    #         if mod_exp(g, power, p) == 1:
+    #             is_generator = False
+    #             break
+    #     if is_generator:
+    #         return g
         
     #solução imediata mas sem certeza ----------------> conferir
     #gen = find_generator(p-1)
