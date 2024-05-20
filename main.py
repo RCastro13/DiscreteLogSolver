@@ -1,7 +1,7 @@
 from decimal import Decimal, getcontext
 import time
 import random
-from math import sqrt 
+from math import sqrt, ceil
 
 def mdc(a, b):
     while b:
@@ -72,25 +72,32 @@ def nextPrime(n):
     
     print(newPrime)
 
-def prime_factors(n):
-    """Retorna os fatores primos de n."""
-    factors = set()
-    while n % 2 == 0:
-        factors.add(2)
-        n //= 2
-    for i in range(3, int(sqrt(n)) + 1, 2):
-        while n % i == 0:
-            factors.add(i)
-            n //= i
-    if n > 2:
-        factors.add(n)
+def wheel_fact(n):
+    factors = []
+    for d in [2, 3, 5]:
+        while n % d == 0:
+            factors.append(d)
+            n //= d
+
+    i = 0
+
+    increments = [4, 2, 4, 2, 4, 6, 2, 6]
+    for k in range(7, ceil(sqrt(n)), increments[i]):
+        while n % d == 0:
+            factors.append(d)
+            n //= d
+        if i == 8:
+            i = 0
+    if n > 1:
+        factors.append(n)
+
     return factors
 
 #FAZER A PARTE DE RETORNAR UM ELEMENTO DE ORDEM ALTA CASO N ENCONTRE UM GERADOR
 def find_generator(p):
     """Encontra um gerador do grupo multiplicativo Zp*."""
     phi = p - 1
-    factors = prime_factors(phi)
+    factors = wheel_fact(phi)
     print("FATORES DE ", p, ": ", factors)
     # powers = []
     # for factor in factors:
