@@ -72,6 +72,12 @@ def nextPrime(n):
     
     print(newPrime)
 
+"""
+    Retorna um vetor com os primos que fatoram n
+    * primos com multiplicidade são repetidos
+    Complexidade O(sqrt(n))
+    Baseado em https://cp-algorithms.com/algebra/factorization.html#wheel-factorization
+"""
 def wheel_fact(n):
     factors = []
     for d in [2, 3, 5]:
@@ -79,19 +85,25 @@ def wheel_fact(n):
             factors.append(d)
             n //= d
 
-    i = 0
 
     increments = [4, 2, 4, 2, 4, 6, 2, 6]
-    for k in range(7, ceil(sqrt(n)), increments[i]):
+    i = 0
+    d = 7
+    while d * d <= n:
+        d += increments[i]
+        i+= 1
         while n % d == 0:
             factors.append(d)
             n //= d
+
         if i == 8:
             i = 0
+
     if n > 1:
         factors.append(n)
 
     return factors
+
 
 #FAZER A PARTE DE RETORNAR UM ELEMENTO DE ORDEM ALTA CASO N ENCONTRE UM GERADOR
 def find_generator(p):
