@@ -117,15 +117,15 @@ def find_generator(p):
     #     powers.append(phi/factor)
     
     #range até P como fazer já que P é um Decimal (numero mto grande)
-    # for g in range(2, int(p)):
-    #     is_generator = True
-    #     for factor in factors:
-    #         power = phi/factor
-    #         if mod_exp(g, power, p) == 1:
-    #             is_generator = False
-    #             break
-    #     if is_generator:
-    #         return g
+    for g in range(2, int(p)):
+        is_generator = True
+        for factor in factors:
+            power = phi/factor
+            if mod_exp(g, power, p) == 1:
+                is_generator = False
+                break
+        if is_generator:
+            return g
         
     #solução imediata mas sem certeza ----------------> conferir
     #gen = find_generator(p-1)
