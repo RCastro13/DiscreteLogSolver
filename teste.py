@@ -116,3 +116,35 @@ def prime_factors(n):
     if n > 2:
         factors.add(n)
     return factors
+
+"""
+    Retorna um vetor com os primos que fatoram n
+    * primos com multiplicidade são repetidos
+    Complexidade O(sqrt(n))
+    Baseado em https://cp-algorithms.com/algebra/factorization.html#wheel-factorization
+"""
+def wheel_fact(n):
+    factors = []
+    for d in [2, 3, 5]:
+        while n % d == 0:
+            factors.append(d)
+            n //= d
+
+
+    increments = [4, 2, 4, 2, 4, 6, 2, 6]
+    i = 0
+    d = 7
+    while d * d <= n:
+        d += increments[i]
+        i+= 1
+        while n % d == 0:
+            factors.append(d)
+            n //= d
+
+        if i == 8:
+            i = 0
+
+    if n > 1:
+        factors.append(n)
+
+    return factors
