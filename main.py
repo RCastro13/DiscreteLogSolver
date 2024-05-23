@@ -4,6 +4,7 @@ import random
 from math import sqrt, ceil
 from sympy import primefactors, mod_inverse, factorint
 from sympy.ntheory.modular import crt
+from functools import reduce
 
 def mdc(a, b):
     while b:
@@ -122,6 +123,22 @@ def mod_inverse(a, m):
         raise ValueError("O inverso modular não existe.")
     else:
         return x % m
+    
+def egcd(a, b):
+    if a == 0:
+        return b, 0, 1
+    else:
+        gcd, x, y = egcd(b % a, a)
+        return gcd, y - (b // a) * x, x
+
+def chinese_remainder_theorem(residues, moduli):
+    product = reduce(lambda x, y: x * y, moduli)
+    result = 0
+    for residue, modulus in zip(residues, moduli):
+        p = product // modulus
+        _, inv, _ = egcd(p, modulus)
+        result += residue * inv * p
+    return result % product
 
 #Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
 def pohlig_hellman(base, a, modulo, factors):
@@ -129,15 +146,45 @@ def pohlig_hellman(base, a, modulo, factors):
     
     powers = []
     primesWithPower = list(set(map(lambda n: n**factors.count(n), factors)))
-    print(primesWithPower)
+    print("LISTA: ", primesWithPower)
 
     for prime in primesWithPower:
         print(modulo-1, "/", prime, " = ", modulo/prime)
-        powers.append((modulo-1)/prime)
+        powers.append(int((modulo-1)/prime))
 
     print("POTENCIAS: ", powers)
-
     
+    intervals = []
+    for power in powers:
+        intervals.append(int((modulo-1) / power))
+
+    print("INTERVALOS: ", intervals)
+
+    chineseNumbers = []
+    tam = len(intervals)
+    print("TAMANHO: ", tam)
+    for j in range (0, tam, 1):
+        print("J: ", j)
+    
+        leftMod = mod_exp(a, powers[j], modulo)
+        rightMod = mod_exp(base, powers[j], modulo)
+        print("RESULTADO DEVE SER leftmod: ", leftMod, " rightmod: ", rightMod, " NO INTERVALO DE ", intervals[j] - 1)
+       
+        print("QUERO Q ", rightMod, "ELEVADO A i MODULO ", modulo, "SEJA IGUAL A ", leftMod)
+        for i in range(1, intervals[j]):
+            
+            resp = mod_exp(rightMod, i, modulo)
+            if resp == leftMod:
+                chineseNumbers.append(i)
+                print("FIZ APPEND DE ", i)
+    
+    print("NUM MODS: ", chineseNumbers)
+
+    solution = crt(chineseNumbers, intervals)
+    x, mod = solution
+    resp = chinese_remainder_theorem(chineseNumbers, intervals)
+    print(f"A solução é x ≡ {x} (mod {mod})")
+    print(f"A solução é ", resp)
     
     # for i in range(len(factors)):
     #     n = 
