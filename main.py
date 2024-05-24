@@ -1,9 +1,5 @@
-from decimal import Decimal, getcontext
 import time
-import random
-from math import sqrt, ceil
-from sympy import primefactors, mod_inverse, factorint
-from sympy.ntheory.modular import crt
+from sympy import primefactors, factorint
 from functools import reduce
 
 def mdc(a, b):
@@ -12,7 +8,7 @@ def mdc(a, b):
     return a
 
 def mod_exp(base, exp, mod):
-    #result = Decimal(1)
+
     result = 1
     while exp > 0:
         if exp % 2 == 1:
@@ -20,16 +16,27 @@ def mod_exp(base, exp, mod):
         base = (base * base) % mod
         exp //= 2
 
-    # if (n - result) == 1:
-    #     result = -1
-
     return result
 
+def all_primes(n):
+    fatores = factorint(n)
+    resultado = []
+    for fator, potencia in fatores.items():
+        resultado.extend([fator] * potencia)
+    return resultado
 
-def millerRabin(n, primeList):
+def fatoraDistinctPrimes(n):
+    return primefactors(n)
+
+def fatoraPrimeExp(n):
+    return all_primes(n)
+
+def millerRabin(n):
     """Retorna True se n for provavelmente primo, caso contrário False.
        k é o número de iterações do teste.
     """ 
+    #Lista de primos para teste da função
+    primeList = [2,3,5,7,11,13,17,19,23]
     
     #cálculo de k e m tal que n-1 = 2^k * m
     k, m = 0, n - 1
@@ -59,22 +66,27 @@ def millerRabin(n, primeList):
             
     return True
 
-def nextPrime(n, primeList):
+def nextPrime(n):
+    start_time = time.time()
+
     if n % 2 == 0:
         newPrime = n+1
         
     else:
         newPrime = n+2
 
-    #newPrime = Decimal(newPrime)
     while(True):
-        result = millerRabin(newPrime, primeList)
+        result = millerRabin(newPrime)
         if result == False:
             newPrime = newPrime + 2
         else:
             break
     
-    print(newPrime)
+    print("NOVO PRIMO: ", newPrime)
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("Tempo Gasto para achar o menor primo maior que N: ", execution_time)
 
     return newPrime
 
@@ -82,14 +94,13 @@ def nextPrime(n, primeList):
 #FAZER A PARTE DE RETORNAR UM ELEMENTO DE ORDEM ALTA CASO N ENCONTRE UM GERADOR
 def find_generator(p, factors):
     """Encontra um gerador do grupo multiplicativo Zp*."""
-    # phi = p - 1
-    # #factors = prime_factors(phi)
-    # factors = primefactors(phi)
-    #print("FATORES DE ", p, ": ", factors)
-    # powers = []
-    # for factor in factors:
-    #     powers.append(phi/factor)
-    
+    start_time = time.time()
+
+    #fatoração do modulo -1
+    phi = p - 1
+    factors = fatoraDistinctPrimes(phi)
+    print("FATORES DE ", phi, ": ", factors)
+
     #range até P como fazer já que P é um Decimal (numero mto grande)
     for g in range(2, p):
         is_generator = True
@@ -99,11 +110,13 @@ def find_generator(p, factors):
                 is_generator = False
                 break
         if is_generator:
+            print("GERADOR: ", g)
             return g
-        
-    #solução imediata mas sem certeza ----------------> conferir
-    #gen = find_generator(p-1)
-    #print("Não achei gerador inicialmente, mas um número com ordem alta é ", gen)
+
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("Tempo Gasto para achar o gerador: ", execution_time)
     
     return None
 
@@ -141,9 +154,16 @@ def chinese_remainder_theorem(residues, moduli):
     return result % product
 
 #Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
-def pohlig_hellman(base, a, modulo, factors):
+def pohlig_hellman(base, a, modulo):
     """Implementa o algoritmo Pohlig-Hellman para calcular logaritmo discreto."""
     
+    start_time = time.time()
+
+    #fatoração do modulo -1 
+    phi = modulo - 1
+    factors = fatoraPrimeExp(phi)
+    print("FATORES DE ", phi, ": ", factors)
+
     powers = []
     primesWithPower = list(set(map(lambda n: n**factors.count(n), factors)))
     print("LISTA: ", primesWithPower)
@@ -180,97 +200,37 @@ def pohlig_hellman(base, a, modulo, factors):
     
     print("NUM MODS: ", chineseNumbers)
 
-    solution = crt(chineseNumbers, intervals)
-    x, mod = solution
     resp = chinese_remainder_theorem(chineseNumbers, intervals)
-    print(f"A solução é x ≡ {x} (mod {mod})")
     print(f"A solução é ", resp)
-    
-    # for i in range(len(factors)):
-    #     n = 
 
+    end_time = time.time()
 
-    # logs = []
-    # moduli = []
-    
-    # for q in factors:
-    #     e = factors.count(q)
-    #     q_power_e = pow(q, e)
-    #     moduli.append(q_power_e)
-        
-    #     x = 0
-    #     a_q = mod_exp(int(a), int(n // q), modulo)
-    #     g_q = mod_exp(int(base), int(n // q), modulo)
-        
-    #     for i in range(e):
-    #         g_inv = mod_inverse(mod_exp(int(g_q), x, modulo), modulo)
-    #         a_i = mod_exp(int(a_q * g_inv), int(n // pow(q, (i + 1))), modulo)
-    #         for j in range(q):
-    #             if mod_exp(int(g_q), j, modulo) == a_i:
-    #                 x += j * pow(q, i)
-    #                 break
-        
-    #     logs.append(x)
-    
-    # # Resolver o sistema de congruências usando o teorema chinês do resto
-    # log_a = crt(moduli, logs)[0]
-    
+    execution_time = end_time - start_time
+    print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
 
+    return resp
 
-    return None
-
-def all_primes(n):
-    fatores = factorint(n)
-    resultado = []
-    for fator, potencia in fatores.items():
-        resultado.extend([fator] * potencia)
-    return resultado
-
-#precisão do número (530 digitos binarios)
-getcontext().prec = 160
-
-#fazer testes com quantidades diferentes de numeros primos
-primeList = [2,3,5,7,11,13,17,19,23]
 
 n = int(input())
-#n = Decimal(n)
 a = int(input())
 
 #Encontrando o menor primo maior que N
-start_time = time.time()
-#newPrime = Decimal(nextPrime(n, primeList))
-newPrime = nextPrime(n, primeList)
-end_time = time.time()
-
-execution_time = end_time - start_time
-print("Tempo Gasto para achar o menor primo maior que N: ", execution_time)
+newPrime = nextPrime(n)
 
 phi = newPrime - 1
-factors = primefactors(phi)
-#print("TOTAL: ", len(factors))
+factors = fatoraDistinctPrimes(phi)
 print("FATORES DE ", phi, ": ", factors)
 
 #Encontrando um gerador de Zn
-start_time = time.time()
 generator = find_generator(newPrime, factors)
-end_time = time.time()
-
-print("GERADOR: ", generator)
-execution_time = end_time - start_time
-print("Tempo Gasto para achar o gerador: ", execution_time)
-
-#factors = all_primes(int(phi))
-factors = all_primes(phi)
-print("FATORES DE ", phi, ": ", factors)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
-start_time = time.time()
-log_a = pohlig_hellman(generator, a, newPrime, factors)
-end_time = time.time()
+logDiscreto = pohlig_hellman(generator, a, newPrime, factors)
 
-execution_time = end_time - start_time
-print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
-#print(f"O logaritmo discreto de {a} na base {generator} módulo {newPrime} é {log_a}")
+#SAIDA FINAL (COMENTADA POR ENQUANTO)
+print("O menor primo maior que ", n, "é ", newPrime)
+print("Um gerador de Zn é ", generator)
+print("O logaritmo de ", a, " na base ", generator, "modulo ", newPrime, " é ", logDiscreto)
 
 #entrada: 1234567890123456789012345678901234568123
 #saída: 1234567890123456789012345678901234568143
