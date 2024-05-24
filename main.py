@@ -91,8 +91,7 @@ def nextPrime(n):
     return newPrime
 
 
-#FAZER A PARTE DE RETORNAR UM ELEMENTO DE ORDEM ALTA CASO N ENCONTRE UM GERADOR
-def find_generator(p, factors):
+def find_generator(p):
     """Encontra um gerador do grupo multiplicativo Zp*."""
     start_time = time.time()
 
@@ -101,7 +100,6 @@ def find_generator(p, factors):
     factors = fatoraDistinctPrimes(phi)
     print("FATORES DE ", phi, ": ", factors)
 
-    #range até P como fazer já que P é um Decimal (numero mto grande)
     for g in range(2, p):
         is_generator = True
         for factor in factors:
@@ -111,31 +109,12 @@ def find_generator(p, factors):
                 break
         if is_generator:
             print("GERADOR: ", g)
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print("Tempo Gasto para achar o gerador: ", execution_time)
             return g
-
-
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print("Tempo Gasto para achar o gerador: ", execution_time)
     
     return None
-
-def extended_gcd(a, b):
-    """Algoritmo de Euclides Estendido para encontrar o inverso modular."""
-    if a == 0:
-        return b, 0, 1
-    gcd, x1, y1 = extended_gcd(b % a, a)
-    x = y1 - (b // a) * x1
-    y = x1
-    return gcd, x, y
-
-def mod_inverse(a, m):
-    """Encontra o inverso modular de a módulo m."""
-    gcd, x, _ = extended_gcd(a, m)
-    if gcd != 1:
-        raise ValueError("O inverso modular não existe.")
-    else:
-        return x % m
     
 def egcd(a, b):
     if a == 0:
@@ -182,15 +161,15 @@ def pohlig_hellman(base, a, modulo):
 
     chineseNumbers = []
     tam = len(intervals)
-    print("TAMANHO: ", tam)
+    #print("TAMANHO: ", tam)
     for j in range (0, tam, 1):
-        print("J: ", j)
+        #print("J: ", j)
     
         leftMod = mod_exp(a, powers[j], modulo)
         rightMod = mod_exp(base, powers[j], modulo)
-        print("RESULTADO DEVE SER leftmod: ", leftMod, " rightmod: ", rightMod, " NO INTERVALO DE ", intervals[j] - 1)
+        #print("RESULTADO DEVE SER leftmod: ", leftMod, " rightmod: ", rightMod, " NO INTERVALO DE ", intervals[j] - 1)
        
-        print("QUERO Q ", rightMod, "ELEVADO A i MODULO ", modulo, "SEJA IGUAL A ", leftMod)
+        #print("QUERO Q ", rightMod, "ELEVADO A i MODULO ", modulo, "SEJA IGUAL A ", leftMod)
         for i in range(1, intervals[j]):
             
             resp = mod_exp(rightMod, i, modulo)
@@ -217,20 +196,16 @@ a = int(input())
 #Encontrando o menor primo maior que N
 newPrime = nextPrime(n)
 
-phi = newPrime - 1
-factors = fatoraDistinctPrimes(phi)
-print("FATORES DE ", phi, ": ", factors)
-
 #Encontrando um gerador de Zn
-generator = find_generator(newPrime, factors)
+generator = find_generator(newPrime)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
-logDiscreto = pohlig_hellman(generator, a, newPrime, factors)
+logDiscreto = pohlig_hellman(generator, a, newPrime)
 
 #SAIDA FINAL (COMENTADA POR ENQUANTO)
-print("O menor primo maior que ", n, "é ", newPrime)
-print("Um gerador de Zn é ", generator)
-print("O logaritmo de ", a, " na base ", generator, "modulo ", newPrime, " é ", logDiscreto)
+print("O menor primo maior que", n, "é", newPrime)
+print("Um gerador de Zn é", generator)
+print("O logaritmo de", a, "na base", generator, "modulo", newPrime, "é", logDiscreto)
 
 #entrada: 1234567890123456789012345678901234568123
 #saída: 1234567890123456789012345678901234568143
