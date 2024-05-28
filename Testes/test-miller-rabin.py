@@ -1,0 +1,41 @@
+import Testes.millerRabin as millerRabin
+
+def test_miller_rabin1():
+    resp = millerRabin.nextPrime(101022938923849234)
+    assert resp == 101022938923849249
+
+def test_miller_rabin2():
+    resp = millerRabin.nextPrime(1234567890123456789012345678901234568123)
+    assert resp == 1234567890123456789012345678901234568143
+
+def test_miller_rabin3():
+    resp = millerRabin.nextPrime(1234567890123456789012345678901234567889999920)
+    assert resp == 1234567890123456789012345678901234567890000001
+
+def test_miller_rabin4():
+    resp = millerRabin.nextPrime(1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752959999999999999999999999860)
+    assert resp == 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752960000000000000000000000001
+
+def test_miller_rabin5():
+    resp = millerRabin.nextPrime(5000)
+    assert resp == 5003
+
+def test_miller_rabin6():
+    resp = millerRabin.nextPrime(330)
+    assert resp == 331
+
+def test_miller_rabin7():
+    resp = millerRabin.nextPrime(8463889)
+    assert resp == 8463893
+
+def test_miller_rabin8():
+    resp = millerRabin.nextPrime(875638204027394763524467482)
+    assert resp == 875638204027394763524467537
+
+def test_miller_rabin9():
+    resp = millerRabin.nextPrime(1000000000000000000)
+    assert resp == 1000000000000000003
+
+def test_miller_rabin10():
+    resp = millerRabin.nextPrime(5555555555555555555)
+    assert resp == 5555555555555555621

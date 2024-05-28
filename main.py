@@ -2,7 +2,6 @@ import time
 from sympy import primefactors, factorint
 from functools import reduce
 from sympy.ntheory.residue_ntheory import discrete_log
-import math
 
 def mdc(a, b):
     while b:
@@ -172,17 +171,17 @@ def pohlig_hellman(base, a, modulo):
         #print("RESULTADO DEVE SER leftmod: ", leftMod, " rightmod: ", rightMod, " NO INTERVALO DE ", intervals[j] - 1)
        
         #QUERO Q ", rightMod, "ELEVADO A i MODULO ", modulo, "SEJA IGUAL A ", leftMod)
-        for i in range(1, intervals[j]):
+        # for i in range(1, intervals[j]):
             
-            resp = mod_exp(rightMod, i, modulo)
-            if resp == leftMod:
-                chineseNumbers.append(i)
-                print("FIZ APPEND DE ", i)
-                break
+        #     resp = mod_exp(rightMod, i, modulo)
+        #     if resp == leftMod:
+        #         chineseNumbers.append(i)
+        #         print("FIZ APPEND DE ", i)
+        #         break
 
-        #dlog = discrete_log(modulo, leftMod, rightMod)
-        #chineseNumbers.append(dlog)
-        #print("ACHEI ", dlog)
+        dlog = discrete_log(modulo, leftMod, rightMod)
+        chineseNumbers.append(dlog)
+        print("ACHEI ", dlog)
     
     print("NUM MODS: ", chineseNumbers)
 
@@ -238,9 +237,9 @@ newPrime = nextPrime(n)
 generator = find_generator(newPrime)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
-#logDiscreto = pohlig_hellman(generator, a, newPrime)
+logDiscreto = pohlig_hellman(generator, a, newPrime)
 #logDiscreto = baby_step_giant_step(generator, a, newPrime)
-logDiscreto = discrete_log(newPrime, a, generator)
+#logDiscreto = discrete_log(newPrime, a, generator)
 
 #SAIDA FINAL (COMENTADA POR ENQUANTO)
 print("O menor primo maior que", n, "é", newPrime)
