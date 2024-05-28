@@ -37,8 +37,8 @@ def millerRabin(n):
     """Retorna True se n for provavelmente primo, caso contrário False.
        k é o número de iterações do teste.
     """ 
-    #Lista de primos para teste da função
-    primeList = [2,3,5,7,11,13,17,19,23]
+    #Lista de 60 primos para teste da função
+    primeList = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281]
     
     #cálculo de k e m tal que n-1 = 2^k * m
     k, m = 0, n - 1
@@ -105,7 +105,7 @@ def find_generator(p):
     for g in range(2, p):
         is_generator = True
         for factor in factors:
-            power = phi/factor
+            power = phi//factor
             if mod_exp(g, power, p) == 1:
                 is_generator = False
                 break
@@ -133,44 +133,6 @@ def chinese_remainder_theorem(residues, moduli):
         _, inv, _ = egcd(p, modulus)
         result += residue * inv * p
     return result % product
-
-# def shanks_log(base, a, modulo):
-#     """
-#     Aplica o algoritmo de Shanks para calcular o logaritmo discreto.
-    
-#     Resolve para x em base^x ≡ a (mod modulo)
-    
-#     Args:
-#     base (int): a base do logaritmo.
-#     a (int): o resultado do logaritmo discreto.
-#     modulo (int): o módulo no qual estamos operando.
-    
-#     Returns:
-#     int: o valor de x tal que base^x ≡ a (mod modulo), ou None se não houver solução.
-#     """
-    
-#     n = math.isqrt(modulo) + 1
-    
-#     # Calcula base^i mod modulo para i de 0 a n-1 (Baby steps)
-#     baby_steps = {}
-#     baby_step_value = 1
-#     for i in range(n):
-#         if baby_step_value not in baby_steps:
-#             baby_steps[baby_step_value] = i
-#         baby_step_value = (baby_step_value * base) % modulo
-    
-#     # Calcula (base^-n) mod modulo
-#     base_n_inv = pow(base, -n, modulo)
-    
-#     # Calcula a * (base^-n)^j mod modulo para j de 0 a n-1 (Giant steps)
-#     giant_step_value = a
-#     for j in range(n):
-#         if giant_step_value in baby_steps:
-#             return j * n + baby_steps[giant_step_value]
-#         giant_step_value = (giant_step_value * base_n_inv) % modulo
-    
-#     return None
-
 
 #Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
 def pohlig_hellman(base, a, modulo):
@@ -218,9 +180,7 @@ def pohlig_hellman(base, a, modulo):
                 print("FIZ APPEND DE ", i)
                 break
 
-        #dlog = discrete_log(modulo, a, base)
         #dlog = discrete_log(modulo, leftMod, rightMod)
-        #dlog = shanks_log(rightMod, leftMod, modulo)
         #chineseNumbers.append(dlog)
         #print("ACHEI ", dlog)
     
@@ -233,7 +193,7 @@ def pohlig_hellman(base, a, modulo):
 
     execution_time = end_time - start_time
     print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
-    
+
     return resp
 
 # def baby_step_giant_step(base, a, modulo):
@@ -279,8 +239,8 @@ generator = find_generator(newPrime)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
 #logDiscreto = pohlig_hellman(generator, a, newPrime)
-logDiscreto = pohlig_hellman(18, 2, 29)
 #logDiscreto = baby_step_giant_step(generator, a, newPrime)
+logDiscreto = discrete_log(newPrime, a, generator)
 
 #SAIDA FINAL (COMENTADA POR ENQUANTO)
 print("O menor primo maior que", n, "é", newPrime)
@@ -289,6 +249,9 @@ print("O logaritmo de", a, "na base", generator, "modulo", newPrime, "é", logDi
 
 #entrada: 1234567890123456789012345678901234568123
 #saída: 1234567890123456789012345678901234568143
+
+#entrada: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752959999999999999999999999860
+#saida: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752960000000000000000000000001
 
 
 # TEST EXAMPLES(h, g, p)         SOLUTIONS
