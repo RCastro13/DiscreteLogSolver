@@ -1,6 +1,8 @@
 import time
 from sympy import primefactors, factorint
 from functools import reduce
+from sympy.ntheory.residue_ntheory import discrete_log
+import math
 
 def mdc(a, b):
     while b:
@@ -132,6 +134,44 @@ def chinese_remainder_theorem(residues, moduli):
         result += residue * inv * p
     return result % product
 
+# def shanks_log(base, a, modulo):
+#     """
+#     Aplica o algoritmo de Shanks para calcular o logaritmo discreto.
+    
+#     Resolve para x em base^x ≡ a (mod modulo)
+    
+#     Args:
+#     base (int): a base do logaritmo.
+#     a (int): o resultado do logaritmo discreto.
+#     modulo (int): o módulo no qual estamos operando.
+    
+#     Returns:
+#     int: o valor de x tal que base^x ≡ a (mod modulo), ou None se não houver solução.
+#     """
+    
+#     n = math.isqrt(modulo) + 1
+    
+#     # Calcula base^i mod modulo para i de 0 a n-1 (Baby steps)
+#     baby_steps = {}
+#     baby_step_value = 1
+#     for i in range(n):
+#         if baby_step_value not in baby_steps:
+#             baby_steps[baby_step_value] = i
+#         baby_step_value = (baby_step_value * base) % modulo
+    
+#     # Calcula (base^-n) mod modulo
+#     base_n_inv = pow(base, -n, modulo)
+    
+#     # Calcula a * (base^-n)^j mod modulo para j de 0 a n-1 (Giant steps)
+#     giant_step_value = a
+#     for j in range(n):
+#         if giant_step_value in baby_steps:
+#             return j * n + baby_steps[giant_step_value]
+#         giant_step_value = (giant_step_value * base_n_inv) % modulo
+    
+#     return None
+
+
 #Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
 def pohlig_hellman(base, a, modulo):
     """Implementa o algoritmo Pohlig-Hellman para calcular logaritmo discreto."""
@@ -169,13 +209,20 @@ def pohlig_hellman(base, a, modulo):
         rightMod = mod_exp(base, powers[j], modulo)
         #print("RESULTADO DEVE SER leftmod: ", leftMod, " rightmod: ", rightMod, " NO INTERVALO DE ", intervals[j] - 1)
        
-        #print("QUERO Q ", rightMod, "ELEVADO A i MODULO ", modulo, "SEJA IGUAL A ", leftMod)
+        #QUERO Q ", rightMod, "ELEVADO A i MODULO ", modulo, "SEJA IGUAL A ", leftMod)
         for i in range(1, intervals[j]):
             
             resp = mod_exp(rightMod, i, modulo)
             if resp == leftMod:
                 chineseNumbers.append(i)
                 print("FIZ APPEND DE ", i)
+                break
+
+        #dlog = discrete_log(modulo, a, base)
+        #dlog = discrete_log(modulo, leftMod, rightMod)
+        #dlog = shanks_log(rightMod, leftMod, modulo)
+        #chineseNumbers.append(dlog)
+        #print("ACHEI ", dlog)
     
     print("NUM MODS: ", chineseNumbers)
 
@@ -186,9 +233,40 @@ def pohlig_hellman(base, a, modulo):
 
     execution_time = end_time - start_time
     print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
-
+    
     return resp
 
+# def baby_step_giant_step(base, a, modulo):
+#     start_time = time.time()
+#     # Calcula o menor inteiro k tal que (modulo - 1) <= k * k
+#     m = int(modulo ** 0.5) + 1
+
+#     # Pré-calcular base ^ -m (mod modulo)
+#     base_inv_m = pow(base, -m, modulo)
+
+#     # Armazena os valores de base^j (mod modulo) em uma tabela
+#     baby_steps = {}
+#     x = 1
+#     for j in range(m):
+#         baby_steps[x] = j
+#         x = (x * base) % modulo
+
+#     # Calcula base^(m * i) (mod modulo) para i = 0, 1, ..., m-1
+#     x = a
+#     for i in range(m):
+#         if x in baby_steps:
+#             end_time = time.time()
+
+#             execution_time = end_time - start_time
+#             print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
+#             return i * m + baby_steps[x]
+#         x = (x * base_inv_m) % modulo
+
+#     end_time = time.time()
+
+#     execution_time = end_time - start_time
+#     print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
+#     return None  # Se não encontrar uma solução
 
 n = int(input())
 a = int(input())
@@ -200,7 +278,9 @@ newPrime = nextPrime(n)
 generator = find_generator(newPrime)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
-logDiscreto = pohlig_hellman(generator, a, newPrime)
+#logDiscreto = pohlig_hellman(generator, a, newPrime)
+logDiscreto = pohlig_hellman(18, 2, 29)
+#logDiscreto = baby_step_giant_step(generator, a, newPrime)
 
 #SAIDA FINAL (COMENTADA POR ENQUANTO)
 print("O menor primo maior que", n, "é", newPrime)
