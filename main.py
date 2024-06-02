@@ -1,6 +1,24 @@
 import time
+import os
+import threading
 from sympy import primefactors, factorint
 from functools import reduce
+
+def handle_timeout():
+    print("Tempo limite atingido; Execucao terminada.")
+    os._exit(1)
+
+
+def terminator(func):
+    def wrapper(*args, **kwargs):
+        TIMEOUT = 5 # tempo limite em segundos
+        alarm = threading.Timer(TIMEOUT, handle_timeout)
+        alarm.start()
+        func(*args, **kwargs)
+        alarm.cancel()
+
+    return wrapper
+
 
 def mdc(a, b):
     while b:
@@ -90,7 +108,6 @@ def nextPrime(n):
 
     return newPrime
 
-
 def find_generator(p):
     """Encontra um gerador do grupo multiplicativo Zp*."""
     start_time = time.time()
@@ -133,6 +150,7 @@ def chinese_remainder_theorem(residues, moduli):
     return result % product
 
 #Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
+@terminator
 def pohlig_hellman(base, a, modulo):
     """Implementa o algoritmo Pohlig-Hellman para calcular logaritmo discreto."""
     
@@ -158,7 +176,7 @@ def pohlig_hellman(base, a, modulo):
         intervals.append(int((modulo-1) / power))
 
     print("INTERVALOS: ", intervals)
-
+    
     chineseNumbers = []
     tam = len(intervals)
     #print("TAMANHO: ", tam)
@@ -192,6 +210,8 @@ def pohlig_hellman(base, a, modulo):
 
 n = int(input())
 a = int(input())
+
+
 
 #Encontrando o menor primo maior que N
 newPrime = nextPrime(n)
