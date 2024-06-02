@@ -3,6 +3,8 @@ import os
 import threading
 from sympy import primefactors, factorint
 from functools import reduce
+from sympy.ntheory.residue_ntheory import discrete_log
+from math import isqrt
 
 def handle_timeout():
     print("Tempo limite atingido; Execucao terminada.")
@@ -21,11 +23,22 @@ def terminator(func):
 
 
 def mdc(a, b):
+    """
+    :param a: número
+    :param b: número
+    :return: retorna o mdc entre 'a' e 'b'
+    """
     while b:
         a, b = b, a % b
     return a
 
 def mod_exp(base, exp, mod):
+    """
+    :param base: base do expoente
+    :param exp: expoente
+    :param mod: módulo 
+    :return: retorna 'base' elevado à 'exp' mod 'mod'
+    """
 
     result = 1
     while exp > 0:
@@ -37,6 +50,10 @@ def mod_exp(base, exp, mod):
     return result
 
 def all_primes(n):
+    """
+    :param n: número a ser fatorado
+    :return: retorna 'n' fatorado sem repetição de número (Ex.: 2,2 -> 4)
+    """
     fatores = factorint(n)
     resultado = []
     for fator, potencia in fatores.items():
@@ -44,17 +61,26 @@ def all_primes(n):
     return resultado
 
 def fatoraDistinctPrimes(n):
+    """
+    :param n: número a ser fatorado
+    :return: retorna 'n' fatorado com repetição de fatores
+    """
     return primefactors(n)
 
 def fatoraPrimeExp(n):
+    """
+    :param n: número a ser fatorado
+    :return: retorna 'n' fatorado sem repetição de número (Ex.: 2,2 -> 4)
+    """
     return all_primes(n)
 
 def millerRabin(n):
-    """Retorna True se n for provavelmente primo, caso contrário False.
-       k é o número de iterações do teste.
+    """
+    :param n: número recebido na entrada
+    :return: retorna true or false caso 'n' seja ou não primo
     """ 
-    #Lista de primos para teste da função
-    primeList = [2,3,5,7,11,13,17,19,23]
+    #Lista de 60 primos para teste da função
+    primeList = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281]
     
     #cálculo de k e m tal que n-1 = 2^k * m
     k, m = 0, n - 1
@@ -64,7 +90,6 @@ def millerRabin(n):
     
     #quantidade de a's a ser testado (numIter)
     for a in primeList:
-        #a = Decimal(random.randint(2, int(n - 2)))
         if mdc(a,n) != 1:
             return False
         
@@ -85,6 +110,10 @@ def millerRabin(n):
     return True
 
 def nextPrime(n):
+    """
+    :param n: número recebido na entrada
+    :return: retorna o próximo primo após 'n'
+    """
     start_time = time.time()
 
     if n % 2 == 0:
@@ -99,8 +128,6 @@ def nextPrime(n):
             newPrime = newPrime + 2
         else:
             break
-    
-    print("NOVO PRIMO: ", newPrime)
 
     end_time = time.time()
     execution_time = end_time - start_time
@@ -109,18 +136,21 @@ def nextPrime(n):
     return newPrime
 
 def find_generator(p):
-    """Encontra um gerador do grupo multiplicativo Zp*."""
+    """
+    :param p: número primo
+    :return: retorna um gerador do grupo multiplicativo Zp
+    """
     start_time = time.time()
 
     #fatoração do modulo -1
     phi = p - 1
     factors = fatoraDistinctPrimes(phi)
-    print("FATORES DE ", phi, ": ", factors)
+    #print("FATORES DE ", phi, ": ", factors)
 
     for g in range(2, p):
         is_generator = True
         for factor in factors:
-            power = phi/factor
+            power = phi//factor
             if mod_exp(g, power, p) == 1:
                 is_generator = False
                 break
@@ -132,111 +162,149 @@ def find_generator(p):
             return g
     
     return None
+
+# def baby_step_giant_step(base, a, modulo):
+#     start_time = time.time()
     
-def egcd(a, b):
-    if a == 0:
-        return b, 0, 1
-    else:
-        gcd, x, y = egcd(b % a, a)
-        return gcd, y - (b // a) * x, x
+#     cols = isqrt(modulo) + 1
+#     numMod = mod_exp(base, cols, modulo)
+
+#     babySteps = []
+#     for i in range(0, cols, 1):
+#         babySteps.append((a * pow(base, i)) % modulo)
+
+#     babyStepsMap = {valor: indice for indice, valor in enumerate(babySteps)}
+    
+#     for j in range(0, cols, 1):
+#         giant_step = mod_exp(numMod, j, modulo)
+#         if giant_step in babySteps:
+#             firstIndex = j
+#             secondIndex = babyStepsMap[giant_step]
+#             resp = (cols * firstIndex) - secondIndex
+
+#             end_time = time.time()
+#             execution_time = end_time - start_time
+#             print("Tempo Gasto para não achar o logaritmo discreto: ", execution_time)
+#             return resp
+
+#     end_time = time.time()
+#     execution_time = end_time - start_time
+#     print("Tempo Gasto para não achar o logaritmo discreto: ", execution_time)
+    
+#     return None
 
 def chinese_remainder_theorem(residues, moduli):
+    """
+    :param residues: números congruentes no TCR
+    :param moduli: módulos do TCR
+    :return: retorna o valor de N -> aplicação do TCR
+    """
+
     product = reduce(lambda x, y: x * y, moduli)
     result = 0
     for residue, modulus in zip(residues, moduli):
         p = product // modulus
-        _, inv, _ = egcd(p, modulus)
+        #_, inv, _ = egcd(p, modulus)
+        inv = mdc(p, modulus)
         result += residue * inv * p
+        
     return result % product
 
 #Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
 @terminator
 def pohlig_hellman(base, a, modulo):
-    """Implementa o algoritmo Pohlig-Hellman para calcular logaritmo discreto."""
-    
-    start_time = time.time()
+    """
+    :param base: base do logaritmo discreto
+    :param a: será calculado logaritmo de 'a'
+    :param modulo: módulo do logaritmo
+    :return: retorna o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
+    """
 
     #fatoração do modulo -1 
     phi = modulo - 1
     factors = fatoraPrimeExp(phi)
     print("FATORES DE ", phi, ": ", factors)
 
+    #fatores mapeados com relação a sua potência
     powers = []
     primesWithPower = list(set(map(lambda n: n**factors.count(n), factors)))
-    print("LISTA: ", primesWithPower)
 
+    #cálculo das potências a serem utilizadas
     for prime in primesWithPower:
-        print(modulo-1, "/", prime, " = ", modulo/prime)
-        powers.append(int((modulo-1)/prime))
-
-    print("POTENCIAS: ", powers)
+        powers.append(int((modulo-1) / prime))
     
+    #cálculo dos intervalos máximos de cada variável
     intervals = []
     for power in powers:
         intervals.append(int((modulo-1) / power))
 
-    print("INTERVALOS: ", intervals)
-    
+    #Encontrando os valores n1,n2...nk
     chineseNumbers = []
     tam = len(intervals)
-    #print("TAMANHO: ", tam)
     for j in range (0, tam, 1):
-        #print("J: ", j)
-    
         leftMod = mod_exp(a, powers[j], modulo)
         rightMod = mod_exp(base, powers[j], modulo)
-        #print("RESULTADO DEVE SER leftmod: ", leftMod, " rightmod: ", rightMod, " NO INTERVALO DE ", intervals[j] - 1)
        
-        #print("QUERO Q ", rightMod, "ELEVADO A i MODULO ", modulo, "SEJA IGUAL A ", leftMod)
-        for i in range(1, intervals[j]):
-            
-            resp = mod_exp(rightMod, i, modulo)
-            if resp == leftMod:
-                chineseNumbers.append(i)
-                print("FIZ APPEND DE ", i)
-    
-    print("NUM MODS: ", chineseNumbers)
+        # for i in range(1, intervals[j]):
+        #     resp = mod_exp(rightMod, i, modulo)
+        #     if resp == leftMod:
+        #         chineseNumbers.append(i)
+        #         print("FIZ APPEND DE ", i)
+        #         break
+
+        dlog = discrete_log(modulo, leftMod, rightMod)
+        chineseNumbers.append(dlog)
 
     resp = chinese_remainder_theorem(chineseNumbers, intervals)
-    print(f"A solução é ", resp)
-
-    end_time = time.time()
-
-    execution_time = end_time - start_time
-    print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
 
     return resp
 
+def ler_numeros_do_arquivo(nome_arquivo):
+    """
+    :param nome_arquivo: nome do arquivo de entrada
+    :return: retorna os 2 números de input
+    """
+    try:
+        with open(nome_arquivo, 'r') as arquivo:
+            linhas = arquivo.readlines()
+            if len(linhas) < 2:
+                raise ValueError("O arquivo deve conter pelo menos duas linhas.")
 
-n = int(input())
-a = int(input())
+            numero_primeira_linha = int(linhas[0].strip())
+            numero_segunda_linha = int(linhas[1].strip())
+
+            return numero_primeira_linha, numero_segunda_linha
+
+    except FileNotFoundError:
+        print(f"Erro: O arquivo '{nome_arquivo}' não foi encontrado.")
+    except ValueError as ve:
+        print(f"Erro: {ve}")
+
+nome_arquivo = 'entrada.txt'
+n, a = ler_numeros_do_arquivo(nome_arquivo)
 
 
 
 #Encontrando o menor primo maior que N
 newPrime = nextPrime(n)
+print("O menor primo maior que", n, "é", newPrime)
 
 #Encontrando um gerador de Zn
 generator = find_generator(newPrime)
+print("Um gerador de Zn é", generator)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
-logDiscreto = pohlig_hellman(generator, a, newPrime)
 
-#SAIDA FINAL (COMENTADA POR ENQUANTO)
-print("O menor primo maior que", n, "é", newPrime)
-print("Um gerador de Zn é", generator)
+start_time = time.time()
+logDiscreto = pohlig_hellman(generator, a, newPrime)
+end_time = time.time()
+execution_time = end_time - start_time
+print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
+
 print("O logaritmo de", a, "na base", generator, "modulo", newPrime, "é", logDiscreto)
 
 #entrada: 1234567890123456789012345678901234568123
 #saída: 1234567890123456789012345678901234568143
 
-
-# TEST EXAMPLES(h, g, p)         SOLUTIONS
-    #PohlingHellman(18, 2, 29)          11
-    #PohlingHellman(166, 7, 433)        47
-    #PohlingHellman(7531, 6, 8101)      6689
-    #PohlingHellman(525, 3, 809)        309
-    #PohlingHellman(12, 7, 41)          13
-    #PohlingHellman(70, 2, 131)         13
-    #PohlingHellman(525, 2, 809)        no solution
-    #PohlingHellman(525, -2, 131)       0
+#entrada: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752959999999999999999999999860
+#saida: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752960000000000000000000000001
