@@ -4,7 +4,6 @@ import threading
 from sympy import primefactors, factorint
 from functools import reduce
 from sympy.ntheory.residue_ntheory import discrete_log
-from math import isqrt
 
 def handle_timeout():
     print("Tempo limite atingido; Execucao terminada.")
@@ -168,36 +167,6 @@ def find_generator(p):
             return g
     
     return None
-
-# def baby_step_giant_step(base, a, modulo):
-#     start_time = time.time()
-    
-#     cols = isqrt(modulo) + 1
-#     numMod = mod_exp(base, cols, modulo)
-
-#     babySteps = []
-#     for i in range(0, cols, 1):
-#         babySteps.append((a * pow(base, i)) % modulo)
-
-#     babyStepsMap = {valor: indice for indice, valor in enumerate(babySteps)}
-    
-#     for j in range(0, cols, 1):
-#         giant_step = mod_exp(numMod, j, modulo)
-#         if giant_step in babySteps:
-#             firstIndex = j
-#             secondIndex = babyStepsMap[giant_step]
-#             resp = (cols * firstIndex) - secondIndex
-
-#             end_time = time.time()
-#             execution_time = end_time - start_time
-#             print("Tempo Gasto para não achar o logaritmo discreto: ", execution_time)
-#             return resp
-
-#     end_time = time.time()
-#     execution_time = end_time - start_time
-#     print("Tempo Gasto para não achar o logaritmo discreto: ", execution_time)
-    
-#     return None
 
 def chinese_remainder_theorem(residues, moduli):
     """
