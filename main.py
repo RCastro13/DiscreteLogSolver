@@ -3,24 +3,6 @@ from sympy import primefactors, factorint
 from functools import reduce
 from sympy.ntheory.residue_ntheory import discrete_log
 from math import isqrt
-# import sys
-# import concurrent.futures
-
-# class TimeoutException(Exception):
-#     pass
-
-# def with_timeout(timeout):
-#     def decorator(func):
-#         def wrapper(*args, **kwargs):
-#             with concurrent.futures.ProcessPoolExecutor() as executor:
-#                 future = executor.submit(func, *args, **kwargs)
-#                 try:
-#                     return future.result(timeout=timeout)
-#                 except concurrent.futures.TimeoutError:
-#                     print(f"Função '{func.__name__}' excedeu o limite de tempo de {timeout} segundos")
-#                     sys.exit(1)  # Finaliza o programa com código de status 1 (erro)
-#         return wrapper
-#     return decorator
 
 def mdc(a, b):
     """
@@ -211,7 +193,6 @@ def chinese_remainder_theorem(residues, moduli):
         
     return result % product
 
-#@with_timeout(2)
 def pohlig_hellman(base, a, modulo):
     """
     :param base: base do logaritmo discreto
@@ -260,6 +241,10 @@ def pohlig_hellman(base, a, modulo):
     return resp
 
 def ler_numeros_do_arquivo(nome_arquivo):
+    """
+    :param nome_arquivo: nome do arquivo de entrada
+    :return: retorna os 2 números de input
+    """
     try:
         with open(nome_arquivo, 'r') as arquivo:
             linhas = arquivo.readlines()
@@ -267,7 +252,6 @@ def ler_numeros_do_arquivo(nome_arquivo):
                 raise ValueError("O arquivo deve conter pelo menos duas linhas.")
 
             numero_primeira_linha = int(linhas[0].strip())
-
             numero_segunda_linha = int(linhas[1].strip())
 
             return numero_primeira_linha, numero_segunda_linha
@@ -277,41 +261,29 @@ def ler_numeros_do_arquivo(nome_arquivo):
     except ValueError as ve:
         print(f"Erro: {ve}")
 
-# Nome do arquivo de entrada
 nome_arquivo = 'entrada.txt'
-
-# Chama a função e exibe os resultados
 n, a = ler_numeros_do_arquivo(nome_arquivo)
-print(f"Números na primeira linha: {a}")
-print(f"Números na segunda linha: {n}")
-
-# n = int(input())
-# a = int(input())
 
 #Encontrando o menor primo maior que N
 newPrime = nextPrime(n)
+print("O menor primo maior que", n, "é", newPrime)
 
 #Encontrando um gerador de Zn
 generator = find_generator(newPrime)
+print("Um gerador de Zn é", generator)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
+
 start_time = time.time()
 logDiscreto = pohlig_hellman(generator, a, newPrime)
 end_time = time.time()
 execution_time = end_time - start_time
 print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
 
-print("O menor primo maior que", n, "é", newPrime)
-print("Um gerador de Zn é", generator)
 print("O logaritmo de", a, "na base", generator, "modulo", newPrime, "é", logDiscreto)
 
 #entrada: 1234567890123456789012345678901234568123
 #saída: 1234567890123456789012345678901234568143
 
-# 933055546577785360646973913576501045393327462 
-
 #entrada: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752959999999999999999999999860
 #saida: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752960000000000000000000000001
-
-# 195104852522228276355183353721555289374816359995982998376425824069640403494691062364260301737810926814837803979318182302657020606186867544174998092704540262400
-# 195104852522228276355183353721555289374816359995982998376425824069640403494691062364260301737810926814837803979318182302657020606186867544174998092704540262400
