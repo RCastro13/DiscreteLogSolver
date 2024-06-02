@@ -13,11 +13,17 @@ def handle_timeout():
 
 def terminator(func):
     def wrapper(*args, **kwargs):
-        TIMEOUT = 5 # tempo limite em segundos
+        TIMEOUT = 300  # tempo limite em segundos
         alarm = threading.Timer(TIMEOUT, handle_timeout)
         alarm.start()
-        func(*args, **kwargs)
-        alarm.cancel()
+        
+        result = None
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            alarm.cancel()
+        
+        return result
 
     return wrapper
 
@@ -52,7 +58,7 @@ def mod_exp(base, exp, mod):
 def all_primes(n):
     """
     :param n: número a ser fatorado
-    :return: retorna 'n' fatorado sem repetição de número (Ex.: 2,2 -> 4)
+    :return: retorna 'n' fatorado com repetição de fatores
     """
     fatores = factorint(n)
     resultado = []
@@ -63,14 +69,14 @@ def all_primes(n):
 def fatoraDistinctPrimes(n):
     """
     :param n: número a ser fatorado
-    :return: retorna 'n' fatorado com repetição de fatores
+    :return: retorna 'n' fatorado sem repetição de número (Ex.: 2,2 -> 2)
     """
     return primefactors(n)
 
 def fatoraPrimeExp(n):
     """
     :param n: número a ser fatorado
-    :return: retorna 'n' fatorado sem repetição de número (Ex.: 2,2 -> 4)
+    :return: retorna 'n' fatorado com repetição de fatores
     """
     return all_primes(n)
 
@@ -155,7 +161,7 @@ def find_generator(p):
                 is_generator = False
                 break
         if is_generator:
-            print("GERADOR: ", g)
+            #print("GERADOR: ", g)
             end_time = time.time()
             execution_time = end_time - start_time
             print("Tempo Gasto para achar o gerador: ", execution_time)
@@ -210,7 +216,7 @@ def chinese_remainder_theorem(residues, moduli):
         
     return result % product
 
-#Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
+
 @terminator
 def pohlig_hellman(base, a, modulo):
     """
@@ -223,7 +229,7 @@ def pohlig_hellman(base, a, modulo):
     #fatoração do modulo -1 
     phi = modulo - 1
     factors = fatoraPrimeExp(phi)
-    print("FATORES DE ", phi, ": ", factors)
+    #print("FATORES DE ", phi, ": ", factors)
 
     #fatores mapeados com relação a sua potência
     powers = []
@@ -283,8 +289,6 @@ def ler_numeros_do_arquivo(nome_arquivo):
 nome_arquivo = 'entrada.txt'
 n, a = ler_numeros_do_arquivo(nome_arquivo)
 
-
-
 #Encontrando o menor primo maior que N
 newPrime = nextPrime(n)
 print("O menor primo maior que", n, "é", newPrime)
@@ -294,7 +298,6 @@ generator = find_generator(newPrime)
 print("Um gerador de Zn é", generator)
 
 #Retornar o logaritmo discreto de 'a' módulo 'p' na base 'g'
-
 start_time = time.time()
 logDiscreto = pohlig_hellman(generator, a, newPrime)
 end_time = time.time()
@@ -302,9 +305,3 @@ execution_time = end_time - start_time
 print("Tempo Gasto para calcular o logaritmo discreto: ", execution_time)
 
 print("O logaritmo de", a, "na base", generator, "modulo", newPrime, "é", logDiscreto)
-
-#entrada: 1234567890123456789012345678901234568123
-#saída: 1234567890123456789012345678901234568143
-
-#entrada: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752959999999999999999999999860
-#saida: 1399893231659162290225488582844000507360739523965724322028894458428263999898448734134121959642347774293805468812408356373767778163752960000000000000000000000001
