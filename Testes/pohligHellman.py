@@ -2,6 +2,7 @@ import time
 from functools import reduce
 from sympy.ntheory.residue_ntheory import discrete_log
 from sympy import factorint
+from math import isqrt
 
 #Calcula o logaritmo discreto de 'a' na base 'base' modulo 'modulo'
 
@@ -25,6 +26,35 @@ def mod_exp(base, exp, mod):
         exp //= 2
 
     return result
+
+def baby_step_giant_step(base, a, modulo):
+    start_time = time.time()
+    
+    cols = isqrt(modulo) + 1
+    numMod = mod_exp(base, cols, modulo)
+
+    babySteps = []
+    for i in range(0, cols):
+        babySteps.append((a * pow(base, i)) % modulo)
+
+    babyStepsMap = {valor: indice for indice, valor in enumerate(babySteps)}
+    
+    for j in range(0,cols):
+        giant_step = mod_exp(numMod, j, modulo)
+        if giant_step in babySteps:
+            firstIndex = j
+            secondIndex = babyStepsMap[giant_step]
+            resp = (cols * firstIndex) - secondIndex
+
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print("Tempo Gasto para não achar o logaritmo discreto: ", execution_time)
+            return resp
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("Tempo Gasto para não achar o logaritmo discreto: ", execution_time)
+    return None  # Se não encontrar uma solução
 
 def egcd(a, b):
     if a == 0:
@@ -87,7 +117,8 @@ def pohlig_hellman(base, a, modulo):
         #         print("FIZ APPEND DE ", i)
         #         break
 
-        dlog = discrete_log(modulo, leftMod, rightMod)
+        #dlog = discrete_log(modulo, leftMod, rightMod)
+        dlog = baby_step_giant_step(rightMod, leftMod, modulo)
         chineseNumbers.append(dlog)
         print("ACHEI ", dlog)
     
