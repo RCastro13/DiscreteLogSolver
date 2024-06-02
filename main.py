@@ -259,8 +259,34 @@ def pohlig_hellman(base, a, modulo):
 
     return resp
 
-n = int(input())
-a = int(input())
+def ler_numeros_do_arquivo(nome_arquivo):
+    try:
+        with open(nome_arquivo, 'r') as arquivo:
+            linhas = arquivo.readlines()
+            if len(linhas) < 2:
+                raise ValueError("O arquivo deve conter pelo menos duas linhas.")
+
+            numero_primeira_linha = int(linhas[0].strip())
+
+            numero_segunda_linha = int(linhas[1].strip())
+
+            return numero_primeira_linha, numero_segunda_linha
+
+    except FileNotFoundError:
+        print(f"Erro: O arquivo '{nome_arquivo}' não foi encontrado.")
+    except ValueError as ve:
+        print(f"Erro: {ve}")
+
+# Nome do arquivo de entrada
+nome_arquivo = 'entrada.txt'
+
+# Chama a função e exibe os resultados
+n, a = ler_numeros_do_arquivo(nome_arquivo)
+print(f"Números na primeira linha: {a}")
+print(f"Números na segunda linha: {n}")
+
+# n = int(input())
+# a = int(input())
 
 #Encontrando o menor primo maior que N
 newPrime = nextPrime(n)
